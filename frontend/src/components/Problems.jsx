@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { obtenerProblemas } from "../services/problemService";
 
 function Problems() {
@@ -21,6 +22,21 @@ function Problems() {
         const interval = setInterval(cargarProblemas, 10000);
         return () => clearInterval(interval);
     }, []);
+
+    const reconocerProblema = async (id) => {
+        try {
+            await axios.post(
+                `http://localhost:3000/api/problems/${id}/acknowledge`,
+                {
+                    user_id: 1,
+                    message: "Problema revisado por soporte"
+                }
+            );
+            cargarProblemas();
+        } catch (error) {
+            console.error("Error reconociendo problema:", error);
+        }
+    };
 
     const obtenerSeveridad = (severity) => {
         switch (severity?.toLowerCase()) {
@@ -55,12 +71,13 @@ function Problems() {
                             <th>Problema</th>
                             <th>Severidad</th>
                             <th>Inicio</th>
+                            <th style={{ width: '150px' }}>Reconocimiento</th>
                         </tr>
                     </thead>
                     <tbody>
                         {problems.length === 0 ? (
                             <tr>
-                                <td colSpan="5" className="table-empty-row">No existen problemas activos.</td>
+                                <td colSpan="6" className="table-empty-row">No existen problemas activos.</td>
                             </tr>
                         ) : (
                             problems.map((problem) => {
@@ -76,6 +93,21 @@ function Problems() {
                                             </span>
                                         </td>
                                         <td>{new Date(problem.started_at).toLocaleString()}</td>
+                                        <td>
+                                            {problem.acknowledged ? (
+                                                <span className="status-badge" style={{ backgroundColor: '#2f5bb7', color: '#fff', fontSize: '10px', fontWeight: 'bold', display: 'inline-block', width: '100%', textAlign: 'center' }}>
+                                                    🔵 ACKNOWLEDGED
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    className="zbx-btn zbx-btn-orange"
+                                                    style={{ padding: '4px 10px', fontSize: '11px', width: '100%' }}
+                                                    onClick={() => reconocerProblema(problem.id)}
+                                                >
+                                                    RECONOCER
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 );
                             })
