@@ -4,6 +4,7 @@ require("dotenv").config();
 
 const hostRoutes = require("./routes/hostRoutes");
 const problemRoutes = require("./routes/problemRoutes");
+const authRoutes = require("./routes/authRoutes");
 const { ejecutarMonitoreo } = require("./services/monitoring/monitoringEngine");
 
 const app = express();
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 app.use("/api/hosts", hostRoutes);
 app.use("/api/devices", hostRoutes);
 app.use("/api/problems", problemRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 

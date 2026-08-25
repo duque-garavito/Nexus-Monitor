@@ -594,3 +594,115 @@
 @keyframes zbx-spin {
   to { transform: rotate(360deg); }
 }
+
+/* Login Page Premium Styles */
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  padding: 20px;
+}
+
+.login-card {
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-icon-large {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #ff5c00;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px auto;
+  box-shadow: 0 0 15px rgba(255, 92, 0, 0.4);
+}
+
+.login-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.login-header h1 span {
+  color: #ff5c00;
+  margin-left: 2px;
+}
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  background-color: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: #ff5c00;
+  box-shadow: 0 0 5px rgba(255, 92, 0, 0.2);
+}
+
+.form-error {
+  background-color: rgba(228, 89, 89, 0.15);
+  border: 1px solid rgba(228, 89, 89, 0.3);
+  border-radius: 4px;
+  color: var(--zbx-problem);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.login-btn {
+  padding: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  margin-top: 10px;
+}

@@ -1,14 +1,16 @@
 const express = require("express");
 const pool = require("../config/database");
+const { verificarToken } = require("../middleware/authMiddleware");
+const { permitirRoles } = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
 /*
 ========================================
-GET - Obtener todos los hosts
+GET - Obtener todos los hosts (admin, operator, viewer)
 ========================================
 */
-router.get("/", async (req, res) => {
+router.get("/", verificarToken, permitirRoles("admin", "operator", "viewer"), async (req, res) => {
   try {
     const [hosts] = await pool.query(
       "SELECT * FROM hosts ORDER BY id DESC"
@@ -31,7 +33,7 @@ router.get("/", async (req, res) => {
 GET - Obtener un host por ID
 ========================================
 */
-router.get("/:id", async (req, res) => {
+router.get("/:id", verificarToken, permitirRoles("admin", "operator", "viewer"), async (req, res) => {
   const { id } = req.params;
   try {
     const [hosts] = await pool.query(
@@ -61,10 +63,10 @@ router.get("/:id", async (req, res) => {
 
 /*
 ========================================
-POST - Crear un nuevo host
+POST - Crear un nuevo host (Sólo admin y operator)
 ========================================
 */
-router.post("/", async (req, res) => {
+router.post("/", verificarToken, permitirRoles("admin", "operator"), async (req, res) => {
   const { name, hostname, ip, type, status, enabled } = req.body;
 
   // Validación básica
@@ -109,10 +111,10 @@ router.post("/", async (req, res) => {
 
 /*
 ========================================
-PUT - Actualizar un host existente
+PUT - Actualizar un host existente (Sólo admin y operator)
 ========================================
 */
-router.put("/:id", async (req, res) => {
+router.put("/:id", verificarToken, permitirRoles("admin", "operator"), async (req, res) => {
   const { id } = req.params;
   const { name, hostname, ip, type, status, enabled } = req.body;
 
@@ -165,10 +167,10 @@ router.put("/:id", async (req, res) => {
 
 /*
 ========================================
-DELETE - Eliminar un host
+DELETE - Eliminar un host (Sólo admin)
 ========================================
 */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verificarToken, permitirRoles("admin"), async (req, res) => {
   const { id } = req.params;
 
   try {

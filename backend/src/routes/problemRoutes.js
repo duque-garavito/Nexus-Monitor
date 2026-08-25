@@ -1,14 +1,15 @@
 const express = require("express");
 const pool = require("../config/database");
+const { verificarToken } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 /*
 ========================================
-GET - Problemas activos
+GET - Problemas activos (Protegido por Token)
 ========================================
 */
-router.get("/", async (req, res) => {
+router.get("/", verificarToken, async (req, res) => {
     try {
         const [problems] = await pool.query(`
             SELECT
@@ -66,15 +67,17 @@ router.get("/", async (req, res) => {
 
 /*
 ========================================
-POST - Reconocer problema
+POST - Reconocer problema (Protegido por Token)
 ========================================
 */
-router.post("/:id/acknowledge", async (req, res) => {
+router.post("/:id/acknowledge", verificarToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { user_id, message } = req.body;
+        const { message } = req.body;
+        
+        // Obtener usuario desde el JWT decodificado
+        const user_id = req.user.userId;
 
-        // Validar usuario
         if (!user_id) {
             return res.status(400).json({
                 success: false,

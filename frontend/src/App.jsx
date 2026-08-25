@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StatsSummary from './components/StatsSummary';
 import DeviceForm from './components/DeviceForm';
 import Problems from './components/Problems';
+import Login from './pages/Login';
 import { 
   obtenerDispositivos, 
   crearDispositivo, 
@@ -12,6 +13,11 @@ import { obtenerProblemas } from './services/problemService';
 import './App.css';
 
 export default function App() {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("nexus_user");
+    return saved ? JSON.parse(saved) : null;
+  });
+  
   const [devices, setDevices] = useState([]);
   const [problems, setProblems] = useState([]);
   const [editingDevice, setEditingDevice] = useState(null);
@@ -22,6 +28,12 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("nexus_token");
+    localStorage.removeItem("nexus_user");
+    setUser(null);
+  };
   
   // Tab State: 'dashboard', 'hosts', 'problems'
   const [currentTab, setCurrentTab] = useState('hosts');
@@ -155,6 +167,10 @@ export default function App() {
     return <span className={className}>{type.toUpperCase()}</span>;
   };
 
+  if (!user) {
+    return <Login onLogin={setUser} />;
+  }
+
   return (
     <div className="app-container">
       {/* Toast Notification */}
@@ -245,7 +261,17 @@ export default function App() {
               {currentTab === 'dashboard' ? 'Tablero' : currentTab === 'problems' ? 'Problemas' : 'Hosts'}
             </strong>
           </div>
-          <div className="server-status">
+          <div className="server-status" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+              Usuario: <strong style={{ color: '#fff' }}>{user.full_name}</strong> | Rol: <strong style={{ color: '#ff5c00', textTransform: 'uppercase' }}>{user.role}</strong>
+            </span>
+            <button 
+              className="zbx-btn" 
+              style={{ padding: '3px 8px', fontSize: '11px', backgroundColor: '#e45959', borderColor: '#e45959', color: '#fff' }}
+              onClick={cerrarSesion}
+            >
+              Cerrar sesión
+            </button>
             <span className="status-dot"></span>
             <span>NEXUS Engine Conectado</span>
           </div>
