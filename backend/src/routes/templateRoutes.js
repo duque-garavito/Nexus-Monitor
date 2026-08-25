@@ -5,7 +5,16 @@ const {
     obtenerTemplates,
     obtenerTemplatePorId,
     actualizarTemplate,
-    eliminarTemplate
+    eliminarTemplate,
+
+    crearTemplateItem,
+    obtenerTemplateItems,
+    obtenerTemplateItemPorId,
+    actualizarTemplateItem,
+    eliminarTemplateItem,
+
+    crearTemplateTrigger,
+    obtenerTemplateTriggers
 } = require("../services/templates/templateService");
 
 /*
@@ -142,6 +151,130 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Error eliminando template"
+        });
+    }
+});
+
+/*
+==================================================
+TEMPLATE ITEMS ENDPOINTS
+==================================================
+*/
+router.get("/:id/items", async (req, res) => {
+    try {
+        const items = await obtenerTemplateItems(req.params.id);
+        res.json({
+            success: true,
+            data: items
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+router.post("/:id/items", async (req, res) => {
+    try {
+        const item = await crearTemplateItem(req.params.id, req.body);
+        res.status(201).json({
+            success: true,
+            message: "Item de template creado correctamente",
+            data: item
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+router.get("/:id/items/:itemId", async (req, res) => {
+    try {
+        const item = await obtenerTemplateItemPorId(req.params.itemId);
+
+        if (!item) {
+            return res.status(404).json({
+                success: false,
+                message: "Item de template no encontrado"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: item
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+router.put("/:id/items/:itemId", async (req, res) => {
+    try {
+        const item = await actualizarTemplateItem(req.params.itemId, req.body);
+
+        res.json({
+            success: true,
+            message: "Item actualizado correctamente",
+            data: item
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+router.delete("/:id/items/:itemId", async (req, res) => {
+    try {
+        const result = await eliminarTemplateItem(req.params.itemId);
+        res.json(result);
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+/*
+==================================================
+TEMPLATE TRIGGERS ENDPOINTS
+==================================================
+*/
+router.get("/:id/triggers", async (req, res) => {
+    try {
+        const triggers = await obtenerTemplateTriggers(req.params.id);
+        res.json({
+            success: true,
+            data: triggers
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+router.post("/:id/triggers", async (req, res) => {
+    try {
+        const trigger = await crearTemplateTrigger(req.params.id, req.body);
+        res.status(201).json({
+            success: true,
+            message: "Trigger de template creado correctamente",
+            data: trigger
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
         });
     }
 });
