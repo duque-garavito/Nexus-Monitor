@@ -5,6 +5,7 @@ require("dotenv").config();
 const hostRoutes = require("./routes/hostRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const authRoutes = require("./routes/authRoutes");
+const templateRoutes = require("./routes/templateRoutes");
 const { iniciarScheduler } = require("./services/monitoring/scheduler");
 
 const app = express();
@@ -26,6 +27,7 @@ app.use("/api/hosts", hostRoutes);
 app.use("/api/devices", hostRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/templates", templateRoutes);
 
 const PORT = process.env.PORT || 3000;
 
