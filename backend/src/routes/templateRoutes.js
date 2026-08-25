@@ -17,6 +17,10 @@ const {
     obtenerTemplateTriggers
 } = require("../services/templates/templateService");
 
+const {
+    sincronizarTemplateConHost
+} = require("../services/templates/templateSyncService");
+
 /*
 ==================================================
 GET /api/templates
@@ -272,6 +276,32 @@ router.post("/:id/triggers", async (req, res) => {
             data: trigger
         });
     } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+});
+
+/*
+==================================================
+TEMPLATE ↔ HOST ASSOCIATION & SYNC
+==================================================
+*/
+router.post("/:id/hosts/:hostId", async (req, res) => {
+    try {
+        const resultado = await sincronizarTemplateConHost(
+            req.params.id,
+            req.params.hostId
+        );
+
+        res.status(201).json({
+            success: true,
+            message: "Template asociado y sincronizado correctamente",
+            data: resultado
+        });
+    } catch (error) {
+        console.error("Error asociando template:", error);
         res.status(400).json({
             success: false,
             message: error.message
