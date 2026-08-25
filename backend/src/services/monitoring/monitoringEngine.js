@@ -2,13 +2,11 @@ const pool = require("../../config/database");
 const { comprobarHost } = require("./icmpService");
 const { evaluarTriggers } = require("./triggerEngine");
 
-const ejecutarMonitoreo = async () => {
-    console.log("🔍 Ejecutando monitoreo...");
-
+const ejecutarMonitoreoItem = async (itemId) => {
     try {
         /*
         ========================================
-        1. Obtener Items ICMP
+        OBTENER ITEM
         ========================================
         */
         const [items] = await pool.query(`
@@ -16,32 +14,41 @@ const ejecutarMonitoreo = async () => {
                 items.id,
                 items.name,
                 items.key_name,
+                items.type,
                 items.interval_seconds,
+
                 hosts.id AS host_id,
                 hosts.name AS host_name,
                 hosts.ip
+
             FROM items
+
             INNER JOIN hosts
                 ON hosts.id = items.host_id
+
             WHERE
-                items.enabled = TRUE
+                items.id = ?
+                AND items.enabled = TRUE
                 AND hosts.enabled = TRUE
-                AND items.type = 'icmp'
-        `);
+
+            LIMIT 1
+        `, [itemId]);
+
+        if (items.length === 0) {
+            console.log(`⚠️ Item ${itemId} no encontrado o deshabilitado`);
+            return;
+        }
+
+        const item = items[0];
+
+        console.log(`📡 ${item.host_name} (${item.ip})`);
 
         /*
         ========================================
-        2. Recorrer Items
+        ICMP
         ========================================
         */
-        for (const item of items) {
-            console.log(`📡 ${item.host_name} (${item.ip})`);
-
-            /*
-            ====================================
-            3. Ejecutar Ping
-            ====================================
-            */
+        if (item.type === "icmp") {
             const resultado = await comprobarHost(item.ip);
 
             console.log(
@@ -50,13 +57,13 @@ const ejecutarMonitoreo = async () => {
                     : `🔴 OFFLINE`
             );
 
-            /*
-            ====================================
-            4. Guardar HISTORY (con latencia)
-            ====================================
-            */
             const valor = resultado.online ? 1 : 0;
 
+            /*
+            ====================================
+            HISTORY
+            ====================================
+            */
             await pool.query(
                 `
                 INSERT INTO item_history
@@ -76,17 +83,14 @@ const ejecutarMonitoreo = async () => {
 
             /*
             ====================================
-            Evaluar TRIGGERS
+            TRIGGERS
             ====================================
             */
-            await evaluarTriggers(
-                item.id,
-                valor
-            );
+            await evaluarTriggers(item.id, valor);
 
             /*
             ====================================
-            5. Actualizar estado del Host
+            ACTUALIZAR HOST
             ====================================
             */
             await pool.query(
@@ -96,19 +100,35 @@ const ejecutarMonitoreo = async () => {
                 WHERE id = ?
                 `,
                 [
-                    resultado.online
-                        ? "online"
-                        : "offline",
+                    resultado.online ? "online" : "offline",
                     item.host_id
                 ]
             );
         }
 
     } catch (error) {
-        console.error("❌ Error en Monitoring Engine:", error);
+        console.error(`Error monitoreando Item ${itemId}:`, error);
+        throw error;
+    }
+};
+
+const ejecutarMonitoreo = async () => {
+    try {
+        const [items] = await pool.query(`
+            SELECT id
+            FROM items
+            WHERE enabled = TRUE
+        `);
+
+        for (const item of items) {
+            await ejecutarMonitoreoItem(item.id);
+        }
+    } catch (error) {
+        console.error("❌ Error en ejecutarMonitoreo general:", error);
     }
 };
 
 module.exports = {
-    ejecutarMonitoreo
+    ejecutarMonitoreo,
+    ejecutarMonitoreoItem
 };

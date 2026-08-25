@@ -5,7 +5,7 @@ require("dotenv").config();
 const hostRoutes = require("./routes/hostRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const authRoutes = require("./routes/authRoutes");
-const { ejecutarMonitoreo } = require("./services/monitoring/monitoringEngine");
+const { iniciarScheduler } = require("./services/monitoring/scheduler");
 
 const app = express();
 
@@ -29,13 +29,8 @@ app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 NEXUS Monitor ejecutándose en http://localhost:${PORT}`);
+  // Start the background monitoring Scheduler Engine
+  await iniciarScheduler();
 });
-
-// ========================================
-// MONITORING ENGINE
-// ========================================
-setInterval(() => {
-  ejecutarMonitoreo();
-}, 10000);
